@@ -1,5 +1,5 @@
 <?php
-if (isset($_POST['title'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $userDir = "users/" . $_POST['title'] . "-" . date('m-d');
     
@@ -19,6 +19,7 @@ if (isset($_POST['title'])) {
     <meta charset='utf-8'>
     	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
     	<script src='https://cdn.jsdelivr.net/npm/marked/marked.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js'></script>
     	</head>
     <style>
     	html {
@@ -77,12 +78,13 @@ if (isset($_POST['title'])) {
 </code>
     </body>
     <script>
-const markdownText = '" . $_POST['chapar'] . "';
-const processedText = markdownText
+    	const rawInput = " . json_encode($_POST['chapar']) . ";
+  const encodedInput = DOMPurify.sanitize(rawInput);
+  let markdownText = encodedInput;
   .replace(/==(.+?)==/g, '<mark>$1</mark>')
   .replace(/\^(.+?)\^/g, '<sup>$1</sup>')
   .replace(/\~(.+?)\~/g, '<sub>$1</sub>');
-document.getElementById('chapar').innerHTML = marked.parse(processedText);
+document.getElementById('chapar').innerHTML = DOMPurify.sanitize(marked.parse(processedText));
     </script>
     </html>
     ";
@@ -109,7 +111,7 @@ document.getElementById('chapar').innerHTML = marked.parse(processedText);
 				}
 		</style>
 	<form method="POST">
-		<input type="text" name="title" placeholder="Title" style="font-size:30px; margin-bottom:10px;" required>
+		<input type="text" name="title" placeholder="Title" style="font-size:30px; margin-bottom:10px;" pattern="^[a-zA-Z]+$" requires>
 		<input type="text" id="markdown" name="chapar" placeholder="Chapar" style="margin-bottom:25px;" required><br>
 <input type="submit" value="PUBLISH">
 		</form>
